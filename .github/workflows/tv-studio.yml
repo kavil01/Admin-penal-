@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       yt_url:
-        required: true
+        required: false
       fb_key:
-        required: true
+        required: false
       news_tagline:
         required: false
 
