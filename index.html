@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8">
+  <title>Kingfmtamil Media - Global TV Studio Admin</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0f19; color: #fff; padding: 20px; }
+    .card { max-width: 550px; margin: 30px auto; background: #151f32; padding: 30px; border-radius: 12px; border: 1px solid #22324d; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; }
+    p.sub { text-align: center; color: #64748b; font-size: 13px; margin-bottom: 25px; }
+    label { font-size: 13px; color: #94a3b8; display: block; margin-top: 15px; font-weight: 600; }
+    input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 6px; border: 1px solid #334155; background: #0b0f19; color: #fff; box-sizing: border-box; }
+    .btn-group { display: flex; gap: 12px; margin-top: 25px; }
+    button { flex: 1; padding: 14px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+    .btn-start { background: #22c55e; color: #fff; }
+    .btn-start:hover { background: #16a34a; }
+    .btn-stop { background: #ef4444; color: #fff; }
+    .btn-stop:hover { background: #dc2626; }
+    .btn-login { background: #38bdf8; color: #0b0f19; width: 100%; margin-top: 20px; }
+    .btn-login:hover { background: #0284c7; }
+    .btn-logout { background: #475569; color: #fff; font-size: 12px; padding: 8px; margin-top: 20px; }
+    #status { margin-top: 20px; text-align: center; font-weight: bold; font-size: 14px; }
+    #adminPanel { display: none; } /* Default Hidden */
+  </style>
+</head>
+<body>
+
+<!-- 1. LOGIN SCREEN -->
+<div class="card" id="loginCard">
+  <h2>🔒 ADMIN LOGIN</h2>
+  <p class="sub">Kingfmtamil Media Broadcast Studio</p>
+
+  <label>Username:</label>
+  <input type="text" id="loginUser" placeholder="Enter Username">
+
+  <label>Password:</label>
+  <input type="password" id="loginPass" placeholder="Enter Password">
+
+  <button class="btn-login" onclick="checkLogin()">LOGIN TO PANEL</button>
+  <p id="loginError" style="color: #ef4444; text-align: center; margin-top: 15px;"></p>
+</div>
+
+<!-- 2. MAIN TV CONTROL PANEL -->
+<div class="card" id="adminPanel">
+  <h2>📺 GLOBAL TV BROADCAST STUDIO</h2>
+  <p class="sub">Local Savings & Cloud Relaying System</p>
+  
+  <label>GitHub Personal Access Token (PAT):</label>
+  <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx">
+
+  <label>Source YouTube Live URL:</label>
+  <input type="text" id="ytUrl" placeholder="https://www.youtube.com/watch?v=XXXXXX">
+
+  <label>Facebook Stream Key Only:</label>
+  <input type="text" id="fbKey" placeholder="FB-1234567890-0-AaaXxx...">
+
+  <label>Breaking News Tagline Text:</label>
+  <input type="text" id="tagline" placeholder="BREAKING NEWS: LIVE COVERAGE">
+
+  <div class="btn-group">
+    <button class="btn-start" onclick="startStream()">▶ START GLOBAL LIVE</button>
+    <button class="btn-stop" onclick="stopStream()">⏹ STOP LIVE</button>
+  </div>
+
+  <button class="btn-logout" onclick="logout()">LOGOUT</button>
+
+  <p id="status"></p>
+</div>
+
+<script>
+  // Auth Config
+  const AUTH_USER = "Kavil";
+  const AUTH_PASS = "Kavil123";
+
+  // GitHub Config
+  const GITHUB_USER = "YOUR_GITHUB_USERNAME"; // உங்கள் GitHub Username
+  const GITHUB_REPO = "YOUR_REPO_NAME";       // உங்கள் Repo Name
+
+  // Login Verification
+  function checkLogin() {
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
+
+    if (user === AUTH_USER && pass === AUTH_PASS) {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      showPanel();
+    } else {
+      document.getElementById('loginError').innerText = "❌ தவறான Username அல்லது Password!";
+    }
+  }
+
+  function showPanel() {
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+
+    // Auto Load Local Savings
+    if(localStorage.getItem('gh_token')) document.getElementById('token').value = localStorage.getItem('gh_token');
+    if(localStorage.getItem('fb_key')) document.getElementById('fbKey').value = localStorage.getItem('fb_key');
+    if(localStorage.getItem('yt_url')) document.getElementById('ytUrl').value = localStorage.getItem('yt_url');
+    if(localStorage.getItem('tagline')) document.getElementById('tagline').value = localStorage.getItem('tagline');
+  }
+
+  function logout() {
+    sessionStorage.removeItem('isLoggedIn');
+    location.reload();
+  }
+
+  // Check Session on Page Load
+  window.onload = function() {
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+      showPanel();
+    }
+  };
+
+  // Start Streaming Function
+  async function startStream() {
+    const token = document.getElementById('token').value;
+    const ytUrl = document.getElementById('ytUrl').value;
+    const fbKey = document.getElementById('fbKey').value;
+    const tagline = document.getElementById('tagline').value || 'BREAKING NEWS';
+    const status = document.getElementById('status');
+
+    if(!token || !ytUrl || !fbKey) {
+      alert("தயவுசெய்து அனைத்து விவரங்களையும் பூர்த்தி செய்யவும்!");
+      return;
+    }
+
+    // Auto Save Settings
+    localStorage.setItem('gh_token', token);
+    localStorage.setItem('fb_key', fbKey);
+    localStorage.setItem('yt_url', ytUrl);
+    localStorage.setItem('tagline', tagline);
+
+    status.innerText = "Cloud Server-உடன் இணைக்கப்படுகிறது...";
+    status.style.color = "#38bdf8";
+
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/actions/workflows/tv-studio.yml/dispatches`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ref: 'main',
+        inputs: { yt_url: ytUrl, fb_key: fbKey, news_tagline: tagline }
+      })
+    });
+
+    if(res.status === 204) {
+      status.innerText = "🔴 LIVE BROADCAST IS ON AIR! (Facebook Live Started)";
+      status.style.color = "#22c55e";
+    } else {
+      status.innerText = "❌ இணைப்பு தோல்வியடைந்தது! Token/Repo விவரங்களை சரிபார்க்கவும்.";
+      status.style.color = "#ef4444";
+    }
+  }
+
+  // Stop Streaming Function
+  async function stopStream() {
+    const token = document.getElementById('token').value;
+    const status = document.getElementById('status');
+
+    status.innerText = "Live நிறுத்துவதற்கான கட்டளை அனுப்பப்படுகிறது...";
+    status.style.color = "#ef4444";
+
+    const runsRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/actions/runs?status=in_progress`, {
+      headers: { 'Authorization': `bearer ${token}` }
+    });
+    const data = await runsRes.json();
+
+    if(data.workflow_runs && data.workflow_runs.length > 0) {
+      const runId = data.workflow_runs[0].id;
+      await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/actions/runs/${runId}/cancel`, {
+        method: 'POST',
+        headers: { 'Authorization': `bearer ${token}` }
+      });
+      status.innerText = "⏹ LIVE STREAM SUCCESSFULLY STOPPED!";
+      status.style.color = "#ef4444";
+    } else {
+      status.innerText = "தற்போது எந்த Live Stream-உம் ஓடவில்லை.";
+      status.style.color = "#64748b";
+    }
+  }
+</script>
+
+</body>
+    </html>
+  
