@@ -4,15 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       yt_url:
-        description: 'YouTube Live Link'
         required: true
       fb_key:
-        description: 'Facebook Stream Key'
         required: true
       news_tagline:
-        description: 'Breaking News Text'
         required: false
-        default: 'BREAKING NEWS'
 
 jobs:
   broadcast:
