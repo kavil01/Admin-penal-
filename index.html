@@ -168,7 +168,7 @@
         const GITHUB_REPO = "Admin-penal-";
         const WORKFLOW_FILE = "tv-studio.yml";
 
-        // Login Check & Load Saved Data
+        // Check Login & Auto-fill Saved Data
         function checkLogin() {
             const user = document.getElementById("username").value.trim();
             const pass = document.getElementById("password").value.trim();
@@ -188,10 +188,10 @@
             localStorage.setItem("tv_ytUrl", document.getElementById("ytUrl").value.trim());
             localStorage.setItem("tv_fbKey", document.getElementById("fbKey").value.trim());
             localStorage.setItem("tv_newsTagline", document.getElementById("newsTagline").value.trim());
-            alert("✅ அனைத்து தகவல்களும் சேமிக்கப்பட்டன! அடுத்த முறை இவை தானாக நிரப்பப்படும்.");
+            alert("✅ அனைத்து தகவல்களும் சேமிக்கப்பட்டன!");
         }
 
-        // Load Data from LocalStorage
+        // Load Saved Data
         function loadSavedData() {
             if (localStorage.getItem("tv_patToken")) document.getElementById("patToken").value = localStorage.getItem("tv_patToken");
             if (localStorage.getItem("tv_ytUrl")) document.getElementById("ytUrl").value = localStorage.getItem("tv_ytUrl");
@@ -199,7 +199,7 @@
             if (localStorage.getItem("tv_newsTagline")) document.getElementById("newsTagline").value = localStorage.getItem("tv_newsTagline");
         }
 
-        // Clear Saved Data
+        // Clear All Saved Data
         function clearData() {
             localStorage.removeItem("tv_patToken");
             localStorage.removeItem("tv_ytUrl");
@@ -211,10 +211,10 @@
             document.getElementById("fbKey").value = "";
             document.getElementById("newsTagline").value = "BREAKING NEWS";
 
-            alert("🗑 அனைத்து தகவல்களும் நீக்கப்பட்டுவிட்டன!");
+            alert("🗑 தகவல்கள் அழிக்கப்பட்டன!");
         }
 
-        // Start Live Action
+        // Trigger Broadcast Start
         async function startLive() {
             const token = document.getElementById("patToken").value.trim();
             const ytUrl = document.getElementById("ytUrl").value.trim();
@@ -250,14 +250,14 @@
                     alert("🔴 LIVE BROADCAST IS ON AIR! (1-2 நிமிடங்களில் நேரலை தொடங்கும்)");
                 } else {
                     const errorData = await response.json();
-                    alert("பிழை ஏற்பட்டது: " + (errorData.message || "Token அனுமதி அல்லது Repo பெயரைச் சரிபார்க்கவும். Classic Token (ghp_) பயன்படுத்துவது சிறந்தது."));
+                    alert("பிழை ஏற்பட்டது: " + (errorData.message || "Token அனுமதியை சரிபார்க்கவும். Classic Token (ghp_) பயன்படுத்தவும்."));
                 }
             } catch (err) {
                 alert("Network Error: " + err.message);
             }
         }
 
-        // Stop Live Action
+        // Stop Running Broadcast
         async function stopLive() {
             const token = document.getElementById("patToken").value.trim();
 
