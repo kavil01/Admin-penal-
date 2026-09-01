@@ -28,7 +28,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
             border: 1px solid #334155;
         }
 
@@ -77,7 +77,7 @@
         .btn-group {
             display: flex;
             gap: 10px;
-            margin-top: 25px;
+            margin-top: 15px;
         }
 
         button {
@@ -86,7 +86,7 @@
             border: none;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: opacity 0.2s;
         }
@@ -95,26 +95,13 @@
             opacity: 0.9;
         }
 
-        .btn-start {
-            background-color: #22c55e;
-            color: #ffffff;
-        }
+        .btn-start { background-color: #22c55e; color: #ffffff; }
+        .btn-stop { background-color: #ef4444; color: #ffffff; }
+        .btn-save { background-color: #3b82f6; color: #ffffff; }
+        .btn-clear { background-color: #64748b; color: #ffffff; }
+        .btn-login { background-color: #38bdf8; color: #0f172a; width: 100%; margin-top: 10px; }
 
-        .btn-stop {
-            background-color: #ef4444;
-            color: #ffffff;
-        }
-
-        .btn-login {
-            background-color: #38bdf8;
-            color: #0f172a;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .hidden {
-            display: none;
-        }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -162,6 +149,13 @@
             <input type="text" id="newsTagline" placeholder="BREAKING NEWS: LIVE COVERAGE" value="BREAKING NEWS">
         </div>
 
+        <!-- SAVE & CLEAR BUTTONS -->
+        <div class="btn-group">
+            <button class="btn-save" onclick="saveData()">💾 SAVE DETAILS</button>
+            <button class="btn-clear" onclick="clearData()">🗑 CLEAR ALL</button>
+        </div>
+
+        <!-- START & STOP LIVE BUTTONS -->
         <div class="btn-group">
             <button class="btn-start" onclick="startLive()">▶ START GLOBAL LIVE</button>
             <button class="btn-stop" onclick="stopLive()">⏹ STOP LIVE</button>
@@ -170,12 +164,11 @@
 
     <!-- 3. JAVASCRIPT ENGINE -->
     <script>
-        // GitHub Repository Configurations
         const GITHUB_USER = "kavil01";
         const GITHUB_REPO = "Admin-penal-";
         const WORKFLOW_FILE = "tv-studio.yml";
 
-        // Login Validation
+        // Login Check & Load Saved Data
         function checkLogin() {
             const user = document.getElementById("username").value.trim();
             const pass = document.getElementById("password").value.trim();
@@ -183,9 +176,42 @@
             if (user === "Kavil" && pass === "Kavil123") {
                 document.getElementById("loginSection").classList.add("hidden");
                 document.getElementById("adminSection").classList.remove("hidden");
+                loadSavedData();
             } else {
                 alert("தவறான Username அல்லது Password!");
             }
+        }
+
+        // Save Data to LocalStorage
+        function saveData() {
+            localStorage.setItem("tv_patToken", document.getElementById("patToken").value.trim());
+            localStorage.setItem("tv_ytUrl", document.getElementById("ytUrl").value.trim());
+            localStorage.setItem("tv_fbKey", document.getElementById("fbKey").value.trim());
+            localStorage.setItem("tv_newsTagline", document.getElementById("newsTagline").value.trim());
+            alert("✅ அனைத்து தகவல்களும் சேமிக்கப்பட்டன! அடுத்த முறை இவை தானாக நிரப்பப்படும்.");
+        }
+
+        // Load Data from LocalStorage
+        function loadSavedData() {
+            if (localStorage.getItem("tv_patToken")) document.getElementById("patToken").value = localStorage.getItem("tv_patToken");
+            if (localStorage.getItem("tv_ytUrl")) document.getElementById("ytUrl").value = localStorage.getItem("tv_ytUrl");
+            if (localStorage.getItem("tv_fbKey")) document.getElementById("fbKey").value = localStorage.getItem("tv_fbKey");
+            if (localStorage.getItem("tv_newsTagline")) document.getElementById("newsTagline").value = localStorage.getItem("tv_newsTagline");
+        }
+
+        // Clear Saved Data
+        function clearData() {
+            localStorage.removeItem("tv_patToken");
+            localStorage.removeItem("tv_ytUrl");
+            localStorage.removeItem("tv_fbKey");
+            localStorage.removeItem("tv_newsTagline");
+
+            document.getElementById("patToken").value = "";
+            document.getElementById("ytUrl").value = "";
+            document.getElementById("fbKey").value = "";
+            document.getElementById("newsTagline").value = "BREAKING NEWS";
+
+            alert("🗑 அனைத்து தகவல்களும் நீக்கப்பட்டுவிட்டன!");
         }
 
         // Start Live Action
@@ -221,10 +247,10 @@
                 });
 
                 if (response.ok) {
-                    alert("🔴 LIVE BROADCAST IS ON AIR! (1-2 நிமிடங்களில் Facebook-ல் நேரலை தொடங்கும்)");
+                    alert("🔴 LIVE BROADCAST IS ON AIR! (1-2 நிமிடங்களில் நேரலை தொடங்கும்)");
                 } else {
                     const errorData = await response.json();
-                    alert("பிழை ஏற்பட்டது: " + (errorData.message || "Token அல்லது Repo பெயர் சரியாக உள்ளதா எனப் பார்க்கவும்."));
+                    alert("பிழை ஏற்பட்டது: " + (errorData.message || "Token அனுமதி அல்லது Repo பெயரைச் சரிபார்க்கவும். Classic Token (ghp_) பயன்படுத்துவது சிறந்தது."));
                 }
             } catch (err) {
                 alert("Network Error: " + err.message);
@@ -270,5 +296,4 @@
         }
     </script>
 </body>
-  </html>
-  
+</html>
