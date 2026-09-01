@@ -127,11 +127,12 @@
     <!-- 2. ADMIN CONTROL PANEL -->
     <div id="adminSection" class="card hidden">
         <h2>📺 GLOBAL TV BROADCAST STUDIO</h2>
-        <p class="subtitle">Local Savings & Cloud Relaying System</p>
+        <p class="subtitle">Cloud Relaying System</p>
 
         <div class="form-group">
-            <label>GitHub Personal Access Token (PAT):</label>
-            <input type="password" id="patToken" placeholder="ghp_xxxxxxxxxxxx">
+            <label>GitHub Token (Default Set):</label>
+            <!-- கீழே value-க்குள் உங்கள் Token-ஐ இடவும் -->
+            <input type="password" id="patToken" value="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">
         </div>
 
         <div class="form-group">
@@ -140,19 +141,20 @@
         </div>
 
         <div class="form-group">
-            <label>Facebook Stream Key Only:</label>
-            <input type="password" id="fbKey" placeholder="FB-1234567890-0-Aaa...">
+            <label>Facebook Stream Key (Default Set):</label>
+            <!-- கீழே value-க்குள் உங்கள் FB Key-ஐ இடவும் -->
+            <input type="password" id="fbKey" value="FB-1948535219149229-0-Ab5n8O7kCaBlL91T2GgvkUtX">
         </div>
 
         <div class="form-group">
             <label>Breaking News Tagline Text:</label>
-            <input type="text" id="newsTagline" placeholder="BREAKING NEWS: LIVE COVERAGE" value="BREAKING NEWS">
+            <input type="text" id="newsTagline" value="BREAKING NEWS">
         </div>
 
         <!-- SAVE & CLEAR BUTTONS -->
         <div class="btn-group">
             <button class="btn-save" onclick="saveData()">💾 SAVE DETAILS</button>
-            <button class="btn-clear" onclick="clearData()">🗑 CLEAR ALL</button>
+            <button class="btn-clear" onclick="clearData()">🗑 CLEAR LINK ONLY</button>
         </div>
 
         <!-- START & STOP LIVE BUTTONS -->
@@ -168,7 +170,7 @@
         const GITHUB_REPO = "Admin-penal-";
         const WORKFLOW_FILE = "tv-studio.yml";
 
-        // Check Login & Auto-fill Saved Data
+        // Login Check & Load Saved Data
         function checkLogin() {
             const user = document.getElementById("username").value.trim();
             const pass = document.getElementById("password").value.trim();
@@ -199,22 +201,14 @@
             if (localStorage.getItem("tv_newsTagline")) document.getElementById("newsTagline").value = localStorage.getItem("tv_newsTagline");
         }
 
-        // Clear All Saved Data
+        // Clear YouTube Link Only
         function clearData() {
-            localStorage.removeItem("tv_patToken");
             localStorage.removeItem("tv_ytUrl");
-            localStorage.removeItem("tv_fbKey");
-            localStorage.removeItem("tv_newsTagline");
-
-            document.getElementById("patToken").value = "";
             document.getElementById("ytUrl").value = "";
-            document.getElementById("fbKey").value = "";
-            document.getElementById("newsTagline").value = "BREAKING NEWS";
-
-            alert("🗑 தகவல்கள் அழிக்கப்பட்டன!");
+            alert("🗑 YouTube Link மட்டும் நீக்கப்பட்டது!");
         }
 
-        // Trigger Broadcast Start
+        // Start Live Action
         async function startLive() {
             const token = document.getElementById("patToken").value.trim();
             const ytUrl = document.getElementById("ytUrl").value.trim();
@@ -222,7 +216,7 @@
             const newsText = document.getElementById("newsTagline").value.trim() || "BREAKING NEWS";
 
             if (!token || !ytUrl || !fbKey) {
-                alert("தயவுசெய்து Token, YouTube Link, மற்றும் Facebook Key ஆகியவற்றை நிரப்பவும்!");
+                alert("தயவுசெய்து YouTube Link-ஐ உள்ளிடவும்!");
                 return;
             }
 
@@ -250,7 +244,7 @@
                     alert("🔴 LIVE BROADCAST IS ON AIR! (1-2 நிமிடங்களில் நேரலை தொடங்கும்)");
                 } else {
                     const errorData = await response.json();
-                    alert("பிழை ஏற்பட்டது: " + (errorData.message || "Token அனுமதியை சரிபார்க்கவும். Classic Token (ghp_) பயன்படுத்தவும்."));
+                    alert("பிழை ஏற்பட்டது: " + (errorData.message || "Token அனுமதியை சரிபார்க்கவும்."));
                 }
             } catch (err) {
                 alert("Network Error: " + err.message);
@@ -262,7 +256,7 @@
             const token = document.getElementById("patToken").value.trim();
 
             if (!token) {
-                alert("தயவுசெய்து GitHub Token-ஐ உள்ளிடவும்!");
+                alert("GitHub Token காணப்படவில்லை!");
                 return;
             }
 
