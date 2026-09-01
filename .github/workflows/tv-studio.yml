@@ -42,7 +42,7 @@ jobs:
         FB_TARGET="rtmps://live-api-s.facebook.com:443/rtmp/${FB_KEY}"
 
         # Get direct HLS live stream URL
-        STREAM_URL=$(yt-dlp -g -f best "$YT_LINK" | head -n 1)
+        STREAM_URL=$(yt-dlp -g -f "best[ext=mp4]/best" "$YT_LINK" | head -n 1)
 
         if [ -z "$STREAM_URL" ]; then
           echo "ERROR: Could not fetch stream URL from YouTube. Video might be private or ended."
