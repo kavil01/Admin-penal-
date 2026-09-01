@@ -5,12 +5,10 @@ on:
     inputs:
       yt_url:
         description: 'YouTube Live Link'
-        required: false
-        default: ''
+        required: true
       fb_key:
         description: 'Facebook Stream Key'
-        required: false
-        default: ''
+        required: true
       news_tagline:
         description: 'News Tagline'
         required: false
@@ -23,11 +21,11 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Install FFmpeg & Tools
+    - name: Install FFmpeg & Latest Tools
       run: |
         sudo apt-get update
         sudo apt-get install -y ffmpeg fonts-dejavu python3-pip
-        sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
+        sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
         sudo chmod a+rx /usr/local/bin/yt-dlp
 
     - name: Start Broadcast
@@ -37,26 +35,29 @@ jobs:
         TAGLINE: ${{ github.event.inputs.news_tagline }}
       run: |
         if [ -z "$YT_LINK" ] || [ -z "$FB_KEY" ]; then
-          echo "ERROR: YouTube URL or Facebook Stream Key is missing in Inputs!"
+          echo "ERROR: YouTube URL or Facebook Stream Key is missing!"
           exit 1
         fi
 
         FB_TARGET="rtmps://live-api-s.facebook.com:443/rtmp/${FB_KEY}"
 
-        yt-dlp -g "$YT_LINK" | {
-          read -r VIDEO_URL
-          read -r AUDIO_URL
+        # Get direct HLS live stream URL
+        STREAM_URL=$(yt-dlp -g -f best "$YT_LINK" | head -n 1)
 
-          ffmpeg -re -i "$VIDEO_URL" -i "$AUDIO_URL" -i logo.png \
-          -filter_complex "[0:v][2:v]overlay=15:15[v1]; \
-          [v1]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: \
-          text=' LIVE':x=160:y=20:fontsize=22:fontcolor=white:box=1:boxcolor=red@0.9:boxborderw=5[v2]; \
-          [v2]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: \
-          text='%{localtime\:%I\:%M\:%S %p}':x=w-tw-20:y=20:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=5[v3]; \
-          [v3]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: \
-          text=' ${TAGLINE} ':x=(w-tw)/2:y=h-50:fontsize=26:fontcolor=yellow:box=1:boxcolor=black@0.8:boxborderw=8[outv]" \
-          -map "[outv]" -map 1:a \
-          -vcodec libx264 -preset ultrafast -b:v 3000k -maxrate 3000k -bufsize 6000k \
-          -acodec aac -b:a 128k -ar 44100 \
-          -f flv "$FB_TARGET"
-        }
+        if [ -z "$STREAM_URL" ]; then
+          echo "ERROR: Could not fetch stream URL from YouTube. Video might be private or ended."
+          exit 1
+        fi
+
+        ffmpeg -re -i "$STREAM_URL" -i logo.png \
+        -filter_complex "[0:v][1:v]overlay=15:15[v1]; \
+        [v1]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: \
+        text=' LIVE':x=160:y=20:fontsize=22:fontcolor=white:box=1:boxcolor=red@0.9:boxborderw=5[v2]; \
+        [v2]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: \
+        text='%{localtime\:%I\:%M\:%S %p}':x=w-tw-20:y=20:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=5[v3]; \
+        [v3]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: \
+        text=' ${TAGLINE} ':x=(w-tw)/2:y=h-50:fontsize=26:fontcolor=yellow:box=1:boxcolor=black@0.8:boxborderw=8[outv]" \
+        -map "[outv]" -map 0:a? \
+        -vcodec libx264 -preset ultrafast -b:v 3000k -maxrate 3000k -bufsize 6000k \
+        -acodec aac -b:a 128k -ar 44100 \
+        -f flv "$FB_TARGET"
