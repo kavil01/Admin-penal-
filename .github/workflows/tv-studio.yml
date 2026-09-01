@@ -4,11 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       yt_url:
+        description: 'YouTube Live Link'
         required: false
+        default: ''
       fb_key:
+        description: 'Facebook Stream Key'
         required: false
+        default: ''
       news_tagline:
+        description: 'News Tagline'
         required: false
+        default: 'BREAKING NEWS'
 
 jobs:
   broadcast:
@@ -30,6 +36,11 @@ jobs:
         FB_KEY: ${{ github.event.inputs.fb_key }}
         TAGLINE: ${{ github.event.inputs.news_tagline }}
       run: |
+        if [ -z "$YT_LINK" ] || [ -z "$FB_KEY" ]; then
+          echo "ERROR: YouTube URL or Facebook Stream Key is missing in Inputs!"
+          exit 1
+        fi
+
         FB_TARGET="rtmps://live-api-s.facebook.com:443/rtmp/${FB_KEY}"
 
         yt-dlp -g "$YT_LINK" | {
@@ -49,4 +60,3 @@ jobs:
           -acodec aac -b:a 128k -ar 44100 \
           -f flv "$FB_TARGET"
         }
-        
